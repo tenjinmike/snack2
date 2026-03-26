@@ -1,1 +1,90 @@
-/* Add styles here */
+
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
+
+:root {
+    --background-color: #f0f2f5;
+    --container-bg-color: #ffffff;
+    --primary-color: #4CAF50; /* Green */
+    --secondary-color: #FFC107; /* Amber */
+    --text-color: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Nanum Pen Script', cursive;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%239C92AC' fill-opacity='0.1' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.container {
+    background-color: var(--container-bg-color);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+}
+
+h1 {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px var(--shadow-color);
+}
+
+.lotto-numbers {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.lotto-number {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.lotto-number:hover {
+    transform: scale(1.1);
+}
+
+.generate-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.5rem;
+    font-family: 'Nanum Pen Script', cursive;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    transition: all 0.3s ease;
+}
+
+.generate-btn:hover {
+    background-color: #45a049;
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+    transform: translateY(-2px);
+}
+
+.generate-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+}
