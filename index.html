@@ -3,53 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snack 2 - 현대적인 스네이크 게임</title>
+    <title>로또 당첨기 - 행운을 드립니다</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="dark-mode">
-    <div class="game-container">
+    <div class="app-container">
         <header>
             <div class="header-top">
-                <h1>Snack 2</h1>
+                <h1>로또 당첨기 🍀</h1>
                 <button id="theme-toggle" class="icon-btn" aria-label="테마 전환">
                     <span class="theme-icon">🌙</span>
                 </button>
             </div>
-            <div class="score-board">
-                <div class="score-item">
-                    <span class="label">점수:</span>
-                    <span id="score" class="value">0</span>
-                </div>
-                <div class="score-item">
-                    <span class="label">최고 점수:</span>
-                    <span id="high-score" class="value">0</span>
-                </div>
-            </div>
+            <p class="subtitle">오늘의 당첨 행운을 잡으세요!</p>
         </header>
 
         <main>
-            <canvas id="gameCanvas"></canvas>
-            <div id="game-over" class="overlay hidden">
-                <div class="overlay-content">
-                    <h2>게임 종료!</h2>
-                    <p>최종 점수: <span id="final-score">0</span></p>
-                    <button id="restart-btn" class="primary-btn">다시 시작</button>
-                </div>
+            <div id="lotto-board" class="lotto-board">
+                <!-- 로또 번호 행들이 여기에 생성됩니다 -->
             </div>
-            <div id="game-start" class="overlay">
-                <div class="overlay-content">
-                    <h2>시작하시겠습니까?</h2>
-                    <p>방향키로 스네이크를 조종하세요.</p>
-                    <button id="start-btn" class="primary-btn">게임 시작</button>
-                </div>
+            
+            <div class="actions">
+                <button id="generate-btn" class="primary-btn glow-btn">행운의 번호 추출</button>
             </div>
         </main>
 
         <footer>
-            <div class="controls-hint">
-                <p>사용법: 방향키 (↑, ↓, ←, →)</p>
-            </div>
+            <p>© 2026 Lotto Winner Generator</p>
         </footer>
     </div>
     <script src="main.js"></script>
