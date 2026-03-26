@@ -1,63 +1,193 @@
-
 document.addEventListener('DOMContentLoaded', () => {
-    const lottoContainer = document.getElementById('lotto-container');
-    const generateBtn = document.getElementById('generate-btn');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('score');
+    const highScoreElement = document.getElementById('high-score');
+    const finalScoreElement = document.getElementById('final-score');
+    const gameOverOverlay = document.getElementById('game-over');
+    const gameStartOverlay = document.getElementById('game-start');
+    const startBtn = document.getElementById('start-btn');
+    const restartBtn = document.getElementById('restart-btn');
 
-    function getNumberColor(number) {
-        if (number <= 10) return '#f44336'; // Red
-        if (number <= 20) return '#FF9800'; // Orange
-        if (number <= 30) return '#FFEB3B'; // Yellow
-        if (number <= 40) return '#4CAF50'; // Green
-        return '#2196F3'; // Blue
+    // Canvas size
+    const gridSize = 20;
+    const tileCount = 20;
+    canvas.width = gridSize * tileCount;
+    canvas.height = gridSize * tileCount;
+
+    // Game state
+    let snake = [{ x: 10, y: 10 }];
+    let food = { x: 15, y: 15 };
+    let dx = 0;
+    let dy = 0;
+    let nextDx = 0;
+    let nextDy = 0;
+    let score = 0;
+    let highScore = localStorage.getItem('snack2-highScore') || 0;
+    let gameLoop;
+    let gameRunning = false;
+    let speed = 150;
+
+    highScoreElement.textContent = highScore;
+
+    function startGame() {
+        snake = [{ x: 10, y: 10 }];
+        generateFood();
+        nextDx = 1;
+        nextDy = 0;
+        dx = 1;
+        dy = 0;
+        score = 0;
+        speed = 150;
+        scoreElement.textContent = score;
+        gameRunning = true;
+        gameStartOverlay.classList.add('hidden');
+        gameOverOverlay.classList.add('hidden');
+        if (gameLoop) clearInterval(gameLoop);
+        gameLoop = setInterval(draw, speed);
     }
 
-    function generateLottoRow() {
-        const numbers = new Set();
-        while (numbers.size < 6) {
-            const randomNumber = Math.floor(Math.random() * 45) + 1;
-            numbers.add(randomNumber);
+    function generateFood() {
+        food = {
+            x: Math.floor(Math.random() * tileCount),
+            y: Math.floor(Math.random() * tileCount)
+        };
+        // Make sure food doesn't appear on snake body
+        if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+            generateFood();
         }
-        return Array.from(numbers).sort((a, b) => a - b);
     }
 
-    function displayLottoRows() {
-        lottoContainer.innerHTML = '';
-        for (let i = 0; i < 6; i++) {
-            const row = document.createElement('div');
-            row.classList.add('lotto-numbers');
-            const lottoNumbers = generateLottoRow();
-            lottoNumbers.forEach((number, index) => {
-                setTimeout(() => {
-                    const numberElement = document.createElement('div');
-                    numberElement.classList.add('lotto-number');
-                    numberElement.textContent = number;
-                    numberElement.style.backgroundColor = getNumberColor(number);
-                    numberElement.style.animation = 'fadeIn 0.5s ease-in-out';
-                    row.appendChild(numberElement);
-                }, index * 100 + i * 200);
-            });
-            lottoContainer.appendChild(row);
+    function draw() {
+        update();
+        if (!gameRunning) return;
+
+        // Clear canvas
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw food
+        ctx.fillStyle = '#cf6679';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#cf6679';
+        ctx.beginPath();
+        ctx.arc(
+            food.x * gridSize + gridSize / 2,
+            food.y * gridSize + gridSize / 2,
+            gridSize / 2 - 2,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Draw snake
+        snake.forEach((segment, index) => {
+            const isHead = index === 0;
+            ctx.fillStyle = isHead ? '#bb86fc' : '#03dac6';
+            if (isHead) {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#bb86fc';
+            }
+            
+            ctx.beginPath();
+            const r = 5; // rounded corners
+            const x = segment.x * gridSize + 1;
+            const y = segment.y * gridSize + 1;
+            const w = gridSize - 2;
+            const h = gridSize - 2;
+            ctx.roundRect(x, y, w, h, r);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+    }
+
+    function update() {
+        dx = nextDx;
+        dy = nextDy;
+
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+        // Collision with walls
+        if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+            endGame();
+            return;
+        }
+
+        // Collision with self
+        if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+            endGame();
+            return;
+        }
+
+        snake.unshift(head);
+
+        // Check if food eaten
+        if (head.x === food.x && head.y === food.y) {
+            score += 10;
+            scoreElement.textContent = score;
+            if (score > highScore) {
+                highScore = score;
+                highScoreElement.textContent = highScore;
+                localStorage.setItem('snack2-highScore', highScore);
+            }
+            generateFood();
+            
+            // Speed up
+            if (speed > 60) {
+                speed -= 2;
+                clearInterval(gameLoop);
+                gameLoop = setInterval(draw, speed);
+            }
+        } else {
+            snake.pop();
         }
     }
 
-    generateBtn.addEventListener('click', displayLottoRows);
+    function endGame() {
+        gameRunning = false;
+        clearInterval(gameLoop);
+        finalScoreElement.textContent = score;
+        gameOverOverlay.classList.remove('hidden');
+    }
 
-    // Initial generation
-    displayLottoRows();
+    // Controls
+    window.addEventListener('keydown', e => {
+        switch (e.key) {
+            case 'ArrowUp':
+                if (dy === 0) { nextDx = 0; nextDy = -1; }
+                break;
+            case 'ArrowDown':
+                if (dy === 0) { nextDx = 0; nextDy = 1; }
+                break;
+            case 'ArrowLeft':
+                if (dx === 0) { nextDx = -1; nextDy = 0; }
+                break;
+            case 'ArrowRight':
+                if (dx === 0) { nextDx = 1; nextDy = 0; }
+                break;
+        }
+    });
+
+    startBtn.addEventListener('click', startGame);
+    restartBtn.addEventListener('click', startGame);
+
+    // Initial draw to show the grid/start state
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 });
 
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: scale(0.5);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
+// Polyfill for roundRect if not available
+if (!Path2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        this.moveTo(x + r, y);
+        this.arcTo(x + w, y, x + w, y + h, r);
+        this.arcTo(x + w, y + h, x, y + h, r);
+        this.arcTo(x, y + h, x, y, r);
+        this.arcTo(x, y, x + w, y, r);
+        this.closePath();
+        return this;
     }
-`;
-
-document.head.appendChild(style);
+}
