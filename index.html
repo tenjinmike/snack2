@@ -7,10 +7,15 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dark-mode">
     <div class="game-container">
         <header>
-            <h1>Snack 2</h1>
+            <div class="header-top">
+                <h1>Snack 2</h1>
+                <button id="theme-toggle" class="icon-btn" aria-label="테마 전환">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
             <div class="score-board">
                 <div class="score-item">
                     <span class="label">점수:</span>

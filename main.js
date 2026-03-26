@@ -8,6 +8,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameStartOverlay = document.getElementById('game-start');
     const startBtn = document.getElementById('start-btn');
     const restartBtn = document.getElementById('restart-btn');
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+
+    // Theme logic
+    let isDarkMode = localStorage.getItem('snack2-theme') !== 'light';
+    updateTheme();
+
+    themeToggle.addEventListener('click', () => {
+        isDarkMode = !isDarkMode;
+        localStorage.setItem('snack2-theme', isDarkMode ? 'dark' : 'light');
+        updateTheme();
+    });
+
+    function updateTheme() {
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            document.body.classList.remove('light-mode');
+            themeIcon.textContent = '🌙';
+        } else {
+            document.body.classList.add('light-mode');
+            document.body.classList.remove('dark-mode');
+            themeIcon.textContent = '☀️';
+        }
+        if (gameRunning) draw(); // Redraw once to update colors
+    }
 
     // Canvas size
     const gridSize = 20;
@@ -52,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
             x: Math.floor(Math.random() * tileCount),
             y: Math.floor(Math.random() * tileCount)
         };
-        // Make sure food doesn't appear on snake body
         if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
             generateFood();
         }
@@ -62,14 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
         update();
         if (!gameRunning) return;
 
+        // Get colors from CSS variables
+        const canvasBg = getComputedStyle(document.body).getPropertyValue('--canvas-bg').trim();
+        const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color').trim();
+        const secondaryColor = getComputedStyle(document.body).getPropertyValue('--secondary-color').trim();
+        const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color').trim();
+
         // Clear canvas
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = canvasBg;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Draw food
-        ctx.fillStyle = '#cf6679';
+        ctx.fillStyle = accentColor;
         ctx.shadowBlur = 15;
-        ctx.shadowColor = '#cf6679';
+        ctx.shadowColor = accentColor;
         ctx.beginPath();
         ctx.arc(
             food.x * gridSize + gridSize / 2,
@@ -84,14 +114,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Draw snake
         snake.forEach((segment, index) => {
             const isHead = index === 0;
-            ctx.fillStyle = isHead ? '#bb86fc' : '#03dac6';
+            ctx.fillStyle = isHead ? primaryColor : secondaryColor;
             if (isHead) {
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = '#bb86fc';
+                ctx.shadowColor = primaryColor;
             }
             
             ctx.beginPath();
-            const r = 5; // rounded corners
+            const r = 5;
             const x = segment.x * gridSize + 1;
             const y = segment.y * gridSize + 1;
             const w = gridSize - 2;
@@ -108,13 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-        // Collision with walls
         if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
             endGame();
             return;
         }
 
-        // Collision with self
         if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
             endGame();
             return;
@@ -122,7 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         snake.unshift(head);
 
-        // Check if food eaten
         if (head.x === food.x && head.y === food.y) {
             score += 10;
             scoreElement.textContent = score;
@@ -133,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             generateFood();
             
-            // Speed up
             if (speed > 60) {
                 speed -= 2;
                 clearInterval(gameLoop);
@@ -151,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverOverlay.classList.remove('hidden');
     }
 
-    // Controls
     window.addEventListener('keydown', e => {
         switch (e.key) {
             case 'ArrowUp':
@@ -172,12 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
     startBtn.addEventListener('click', startGame);
     restartBtn.addEventListener('click', startGame);
 
-    // Initial draw to show the grid/start state
-    ctx.fillStyle = '#000';
+    // Initial clear
+    const initialBg = getComputedStyle(document.body).getPropertyValue('--canvas-bg').trim();
+    ctx.fillStyle = initialBg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 });
 
-// Polyfill for roundRect if not available
 if (!Path2D.prototype.roundRect) {
     CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
         if (w < 2 * r) r = w / 2;
