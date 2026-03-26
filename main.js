@@ -1,6 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
-    const numberContainer = document.getElementById('lotto-numbers');
+    const lottoContainer = document.getElementById('lotto-container');
     const generateBtn = document.getElementById('generate-btn');
 
     function getNumberColor(number) {
@@ -11,32 +11,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return '#2196F3'; // Blue
     }
 
-    function generateLottoNumbers() {
-        numberContainer.innerHTML = '';
+    function generateLottoRow() {
         const numbers = new Set();
         while (numbers.size < 6) {
             const randomNumber = Math.floor(Math.random() * 45) + 1;
             numbers.add(randomNumber);
         }
-
-        const sortedNumbers = Array.from(numbers).sort((a, b) => a - b);
-
-        sortedNumbers.forEach((number, index) => {
-            setTimeout(() => {
-                const numberElement = document.createElement('div');
-                numberElement.classList.add('lotto-number');
-                numberElement.textContent = number;
-                numberElement.style.backgroundColor = getNumberColor(number);
-                numberElement.style.animation = 'fadeIn 0.5s ease-in-out';
-                numberContainer.appendChild(numberElement);
-            }, index * 200);
-        });
+        return Array.from(numbers).sort((a, b) => a - b);
     }
 
-    generateBtn.addEventListener('click', generateLottoNumbers);
+    function displayLottoRows() {
+        lottoContainer.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const row = document.createElement('div');
+            row.classList.add('lotto-numbers');
+            const lottoNumbers = generateLottoRow();
+            lottoNumbers.forEach((number, index) => {
+                setTimeout(() => {
+                    const numberElement = document.createElement('div');
+                    numberElement.classList.add('lotto-number');
+                    numberElement.textContent = number;
+                    numberElement.style.backgroundColor = getNumberColor(number);
+                    numberElement.style.animation = 'fadeIn 0.5s ease-in-out';
+                    row.appendChild(numberElement);
+                }, index * 100 + i * 200);
+            });
+            lottoContainer.appendChild(row);
+        }
+    }
+
+    generateBtn.addEventListener('click', displayLottoRows);
 
     // Initial generation
-    generateLottoNumbers();
+    displayLottoRows();
 });
 
 const style = document.createElement('style');
@@ -54,4 +61,3 @@ style.textContent = `
 `;
 
 document.head.appendChild(style);
-
